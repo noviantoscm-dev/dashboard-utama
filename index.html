@@ -181,16 +181,45 @@
   }
   .open-new:hover{ border-color: var(--accent-dim); }
 
+  .zoom-controls{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    margin-right:14px;
+  }
+  .zoom-btn{
+    width:26px;
+    height:26px;
+    border-radius:6px;
+    border:1px solid var(--border);
+    background:transparent;
+    color: var(--text-dim);
+    cursor:pointer;
+    font-size:15px;
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .zoom-btn:hover{ color: var(--accent); border-color: var(--accent-dim); }
+  .zoom-level{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color: var(--text-faint);
+    min-width:38px;
+    text-align:center;
+  }
+
   .frame-wrap{
     flex:1;
     position:relative;
     background: var(--surface-raised);
+    overflow:auto;
   }
   iframe{
-    width:100%;
-    height:100%;
     border:none;
     display:block;
+    transform-origin: top left;
   }
 
   .fallback{
@@ -267,7 +296,14 @@
   <div class="stage">
     <div class="frame-bar">
       <span class="url" id="currentUrl">—</span>
-      <a class="open-new" id="openNewBtn" href="#" target="_blank" rel="noopener noreferrer">Buka di tab baru ↗</a>
+      <div style="display:flex; align-items:center;">
+        <div class="zoom-controls">
+          <button class="zoom-btn" id="zoomOutBtn" title="Perkecil">−</button>
+          <span class="zoom-level" id="zoomLevel">100%</span>
+          <button class="zoom-btn" id="zoomInBtn" title="Perbesar">+</button>
+        </div>
+        <a class="open-new" id="openNewBtn" href="#" target="_blank" rel="noopener noreferrer">Buka di tab baru ↗</a>
+      </div>
     </div>
     <div class="frame-wrap">
       <iframe id="mainFrame" src="" title="menu"></iframe>
@@ -309,6 +345,30 @@
   const sidebar = document.getElementById('sidebar');
   const hideSidebarBtn = document.getElementById('hideSidebarBtn');
   const showSidebarBtn = document.getElementById('showSidebarBtn');
+  const zoomInBtn = document.getElementById('zoomInBtn');
+  const zoomOutBtn = document.getElementById('zoomOutBtn');
+  const zoomLevelEl = document.getElementById('zoomLevel');
+
+  let zoom = 1;
+  const ZOOM_MIN = 0.5;
+  const ZOOM_MAX = 1.5;
+  const ZOOM_STEP = 0.1;
+
+  function applyZoom(){
+    frame.style.transform = `scale(${zoom})`;
+    frame.style.width = `${100 / zoom}%`;
+    frame.style.height = `${100 / zoom}%`;
+    zoomLevelEl.textContent = Math.round(zoom * 100) + '%';
+  }
+
+  zoomInBtn.addEventListener('click', () => {
+    zoom = Math.min(ZOOM_MAX, +(zoom + ZOOM_STEP).toFixed(2));
+    applyZoom();
+  });
+  zoomOutBtn.addEventListener('click', () => {
+    zoom = Math.max(ZOOM_MIN, +(zoom - ZOOM_STEP).toFixed(2));
+    applyZoom();
+  });
 
   hideSidebarBtn.addEventListener('click', () => {
     sidebar.classList.add('collapsed');
@@ -358,6 +418,7 @@
 
   renderTabs();
   loadMenu(menus[activeIndex]);
+  applyZoom();
 </script>
 </body>
 </html>

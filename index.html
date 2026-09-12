@@ -98,6 +98,23 @@
     color:var(--text-dim);
     font-size:12.5px;
   }
+  .marquee-wrap{
+    overflow:hidden;
+    white-space:nowrap;
+    width:100%;
+  }
+  .marquee-text{
+    display:inline-block;
+    margin:0;
+    color:var(--text-dim);
+    font-size:12.5px;
+    padding-left:100%;
+    animation: marquee-scroll 9s linear infinite;
+  }
+  @keyframes marquee-scroll{
+    0%{ transform: translateX(0); }
+    100%{ transform: translateX(-100%); }
+  }
   .sidebar-toggle{
     flex-shrink:0;
     width:26px;
@@ -221,10 +238,12 @@
   .fullscreen-btn:hover{ color: var(--accent); border-color: var(--accent-dim); }
   .live-clock{
     font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
+    font-size:10.5px;
     color: var(--text-faint);
     margin-right:14px;
     white-space:nowrap;
+    text-align:right;
+    min-width:190px;
   }
 
   .frame-wrap{
@@ -303,7 +322,9 @@
     <div class="masthead">
       <div class="masthead-text">
         <h1>Dashboard Utama</h1>
-        <p>Akses semua menu operasional FBI.</p>
+        <div class="marquee-wrap">
+          <p class="marquee-text">Akses semua menu operasional proses</p>
+        </div>
       </div>
       <div style="display:flex; gap:6px; flex-shrink:0;">
         <button class="sidebar-toggle" id="hideSidebarBtn" title="Sembunyikan sidebar">⟨</button>

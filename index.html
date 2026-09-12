@@ -209,6 +209,22 @@
     min-width:38px;
     text-align:center;
   }
+  .fullscreen-btn{
+    width:26px;
+    height:26px;
+    border-radius:6px;
+    border:1px solid var(--border);
+    background:transparent;
+    color: var(--text-dim);
+    cursor:pointer;
+    font-size:14px;
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-right:14px;
+  }
+  .fullscreen-btn:hover{ color: var(--accent); border-color: var(--accent-dim); }
 
   .frame-wrap{
     flex:1;
@@ -302,6 +318,7 @@
           <span class="zoom-level" id="zoomLevel">100%</span>
           <button class="zoom-btn" id="zoomInBtn" title="Perbesar">+</button>
         </div>
+        <button class="fullscreen-btn" id="fullscreenBtn" title="Perbesar layar penuh">⛶</button>
         <a class="open-new" id="openNewBtn" href="#" target="_blank" rel="noopener noreferrer">Buka di tab baru ↗</a>
       </div>
     </div>
@@ -348,6 +365,19 @@
   const zoomInBtn = document.getElementById('zoomInBtn');
   const zoomOutBtn = document.getElementById('zoomOutBtn');
   const zoomLevelEl = document.getElementById('zoomLevel');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+  fullscreenBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement){
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen();
+    }
+  });
+  document.addEventListener('fullscreenchange', () => {
+    fullscreenBtn.textContent = document.fullscreenElement ? '⤢' : '⛶';
+    fullscreenBtn.title = document.fullscreenElement ? 'Keluar layar penuh' : 'Perbesar layar penuh';
+  });
 
   let zoom = 1;
   const ZOOM_MIN = 0.5;

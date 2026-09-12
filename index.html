@@ -219,6 +219,13 @@
     margin-right:14px;
   }
   .fullscreen-btn:hover{ color: var(--accent); border-color: var(--accent-dim); }
+  .live-clock{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color: var(--text-faint);
+    margin-right:14px;
+    white-space:nowrap;
+  }
 
   .frame-wrap{
     flex:1;
@@ -265,6 +272,7 @@
 
   @media (max-width: 640px){
     .frame-bar .url{ display:none; }
+    .live-clock{ display:none; }
     body{ flex-direction:column; }
     .sidebar{
       width:100%;
@@ -310,6 +318,7 @@
     <div class="frame-bar">
       <span class="url" id="currentUrl">—</span>
       <div style="display:flex; align-items:center;">
+        <span class="live-clock" id="liveClock">—</span>
         <button class="fullscreen-btn" id="themeToggleBtn" title="Ganti tema gelap/terang">☾</button>
         <button class="fullscreen-btn" id="fullscreenBtn" title="Perbesar layar penuh">⛶</button>
         <a class="open-new" id="openNewBtn" href="#" target="_blank" rel="noopener noreferrer">Buka di tab baru ↗</a>
@@ -355,6 +364,16 @@
   const sidebar = document.getElementById('sidebar');
   const hideSidebarBtn = document.getElementById('hideSidebarBtn');
   const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const liveClock = document.getElementById('liveClock');
+
+  function updateClock(){
+    const now = new Date();
+    const tanggal = now.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    const waktu = now.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    liveClock.textContent = `${tanggal}, ${waktu}`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
 
   themeToggleBtn.addEventListener('click', () => {
     const isLight = document.body.classList.toggle('light');

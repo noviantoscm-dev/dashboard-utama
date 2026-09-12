@@ -21,6 +21,27 @@
     --accent-bg: rgba(255,255,255,0.16);
     --danger: #F08C7D;
     --gradient: linear-gradient(155deg, #2B1A45 0%, #7C2E9E 45%, #C874D9 75%, #F6ECFB 100%);
+    --panel-bg: rgba(30,17,51,0.62);
+    --panel-bg-soft: rgba(30,17,51,0.5);
+    --btn-text: #20180a;
+  }
+  body.light{
+    --bg: #FAF6FD;
+    --surface: #FFFFFF;
+    --surface-raised: #FFFFFF;
+    --border: #DFC9EF;
+    --border-soft: #EAD9F4;
+    --text: #2B1A45;
+    --text-dim: #6B4C8A;
+    --text-faint: #9B84B8;
+    --accent: #8A2FB0;
+    --accent-dim: #6B2088;
+    --accent-bg: rgba(138,47,176,0.1);
+    --danger: #C94B3D;
+    --gradient: linear-gradient(155deg, #FAF3FD 0%, #EBD1F5 40%, #C874D9 75%, #7C2E9E 100%);
+    --panel-bg: rgba(255,255,255,0.7);
+    --panel-bg-soft: rgba(255,255,255,0.65);
+    --btn-text: #FFFFFF;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0; height:100%;}
@@ -32,6 +53,7 @@
     min-height:100vh;
     display:flex;
     flex-direction:row;
+    transition: background .25s ease, color .25s ease;
   }
 
   .sidebar{
@@ -40,7 +62,7 @@
     display:flex;
     flex-direction:column;
     border-right: 1px solid var(--border);
-    background: rgba(30,17,51,0.62);
+    background: var(--panel-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     height:100vh;
@@ -78,14 +100,14 @@
   }
   .sidebar-toggle{
     flex-shrink:0;
-    width:30px;
-    height:30px;
+    width:26px;
+    height:26px;
     border-radius:6px;
     border:1px solid var(--border);
     background:transparent;
     color: var(--text-dim);
     cursor:pointer;
-    font-size:14px;
+    font-size:13px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -155,7 +177,7 @@
     justify-content:space-between;
     align-items:center;
     padding:8px 20px;
-    background: rgba(30,17,51,0.5);
+    background: var(--panel-bg-soft);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--border-soft);
@@ -181,34 +203,6 @@
   }
   .open-new:hover{ border-color: var(--accent-dim); }
 
-  .zoom-controls{
-    display:flex;
-    align-items:center;
-    gap:4px;
-    margin-right:14px;
-  }
-  .zoom-btn{
-    width:26px;
-    height:26px;
-    border-radius:6px;
-    border:1px solid var(--border);
-    background:transparent;
-    color: var(--text-dim);
-    cursor:pointer;
-    font-size:15px;
-    line-height:1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  .zoom-btn:hover{ color: var(--accent); border-color: var(--accent-dim); }
-  .zoom-level{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11.5px;
-    color: var(--text-faint);
-    min-width:38px;
-    text-align:center;
-  }
   .fullscreen-btn{
     width:26px;
     height:26px;
@@ -233,9 +227,10 @@
     overflow:auto;
   }
   iframe{
+    width:100%;
+    height:100%;
     border:none;
     display:block;
-    transform-origin: top left;
   }
 
   .fallback{
@@ -260,7 +255,7 @@
   .fallback p{ max-width:44ch; font-size:13.5px; margin: 0 0 18px; }
   .fallback a.btn{
     background: var(--accent);
-    color:#20180a;
+    color: var(--btn-text);
     text-decoration:none;
     padding:9px 20px;
     border-radius:6px;
@@ -300,9 +295,11 @@
     <div class="masthead">
       <div class="masthead-text">
         <h1>Dashboard Utama</h1>
-        <p>Akses semua menu operasional dari satu tempat.</p>
+        <p>Akses semua menu operasional FBI.</p>
       </div>
-      <button class="sidebar-toggle" id="hideSidebarBtn" title="Sembunyikan sidebar">⟨</button>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <button class="sidebar-toggle" id="hideSidebarBtn" title="Sembunyikan sidebar">⟨</button>
+      </div>
     </div>
     <div class="tabs" id="tabs"></div>
   </div>
@@ -313,11 +310,7 @@
     <div class="frame-bar">
       <span class="url" id="currentUrl">—</span>
       <div style="display:flex; align-items:center;">
-        <div class="zoom-controls">
-          <button class="zoom-btn" id="zoomOutBtn" title="Perkecil">−</button>
-          <span class="zoom-level" id="zoomLevel">100%</span>
-          <button class="zoom-btn" id="zoomInBtn" title="Perbesar">+</button>
-        </div>
+        <button class="fullscreen-btn" id="themeToggleBtn" title="Ganti tema gelap/terang">☾</button>
         <button class="fullscreen-btn" id="fullscreenBtn" title="Perbesar layar penuh">⛶</button>
         <a class="open-new" id="openNewBtn" href="#" target="_blank" rel="noopener noreferrer">Buka di tab baru ↗</a>
       </div>
@@ -336,16 +329,16 @@
   // Daftar menu — tinggal tambah/edit di sini
   const menus = [
     {
-      name: "FBI Maintenance Expired",
-      url: "https://script.google.com/a/macros/kawanlamacorp.com/s/AKfycbxkN3DDLjkNWtomy4o24L75s0q0wg_XFd1nTcL_tEReu0U_3n-akzuqcuaxJJYSHEh9cg/exec"
-    },
-    {
       name: "Dashboard Picking",
       url: "https://script.google.com/a/macros/kawanlamacorp.com/s/AKfycbwuX1OOs38R371rD2s5X8wOejX80HWUozSMN5_3LXLaMc9iVY5eA9YkD6jO6lpdiHbb/exec"
     },
     {
       name: "Update Area Kerja FBI",
       url: "https://script.google.com/a/macros/kawanlamacorp.com/s/AKfycbymV0wpEPhQZGqHJIPAtb_bXYYWnMRQPsrnzX3iO9tff_aDm9JmaduiB3NbN70WoSEIeg/exec"
+    },
+    {
+      name: "FBI Maintenance Expired",
+      url: "https://script.google.com/a/macros/kawanlamacorp.com/s/AKfycbxkN3DDLjkNWtomy4o24L75s0q0wg_XFd1nTcL_tEReu0U_3n-akzuqcuaxJJYSHEh9cg/exec"
     },
     {
       name: "Dashboard Update Stock Molly",
@@ -361,10 +354,14 @@
   const fallbackOpen = document.getElementById('fallbackOpen');
   const sidebar = document.getElementById('sidebar');
   const hideSidebarBtn = document.getElementById('hideSidebarBtn');
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+  themeToggleBtn.addEventListener('click', () => {
+    const isLight = document.body.classList.toggle('light');
+    themeToggleBtn.textContent = isLight ? '☀' : '☾';
+    themeToggleBtn.title = isLight ? 'Ganti ke tema gelap' : 'Ganti ke tema terang';
+  });
   const showSidebarBtn = document.getElementById('showSidebarBtn');
-  const zoomInBtn = document.getElementById('zoomInBtn');
-  const zoomOutBtn = document.getElementById('zoomOutBtn');
-  const zoomLevelEl = document.getElementById('zoomLevel');
   const fullscreenBtn = document.getElementById('fullscreenBtn');
 
   fullscreenBtn.addEventListener('click', () => {
@@ -377,27 +374,6 @@
   document.addEventListener('fullscreenchange', () => {
     fullscreenBtn.textContent = document.fullscreenElement ? '⤢' : '⛶';
     fullscreenBtn.title = document.fullscreenElement ? 'Keluar layar penuh' : 'Perbesar layar penuh';
-  });
-
-  let zoom = 1;
-  const ZOOM_MIN = 0.5;
-  const ZOOM_MAX = 1.5;
-  const ZOOM_STEP = 0.1;
-
-  function applyZoom(){
-    frame.style.transform = `scale(${zoom})`;
-    frame.style.width = `${100 / zoom}%`;
-    frame.style.height = `${100 / zoom}%`;
-    zoomLevelEl.textContent = Math.round(zoom * 100) + '%';
-  }
-
-  zoomInBtn.addEventListener('click', () => {
-    zoom = Math.min(ZOOM_MAX, +(zoom + ZOOM_STEP).toFixed(2));
-    applyZoom();
-  });
-  zoomOutBtn.addEventListener('click', () => {
-    zoom = Math.max(ZOOM_MIN, +(zoom - ZOOM_STEP).toFixed(2));
-    applyZoom();
   });
 
   hideSidebarBtn.addEventListener('click', () => {
@@ -448,7 +424,6 @@
 
   renderTabs();
   loadMenu(menus[activeIndex]);
-  applyZoom();
 </script>
 </body>
 </html>

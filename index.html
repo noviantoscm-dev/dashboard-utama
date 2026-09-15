@@ -180,12 +180,21 @@
     white-space:normal;
     line-height:1.35;
     font-family:'IBM Plex Sans', sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
   }
   .tab:hover{ color: var(--text); background: var(--surface-raised); }
   .tab.active{
     color: var(--accent);
     background: var(--accent-bg);
     border-left-color: var(--accent);
+  }
+  .tab .ext-icon{
+    flex-shrink:0;
+    font-size:12px;
+    opacity:0.7;
   }
 
   .stage{
@@ -383,6 +392,9 @@
 
 <script>
   // Daftar menu — tinggal tambah/edit di sini
+  // Tambahkan "openInNewTab: true" pada menu yang gagal menampilkan data
+  // di dalam iframe (biasanya karena Apps Script butuh sesi login Google
+  // yang terblokir saat berada dalam nested-iframe / cookie pihak ketiga).
   const menus = [
     {
       name: "Dashboard Picking",
@@ -394,7 +406,8 @@
     },
     {
       name: "FBI Maintenance Expired",
-      url: "https://script.google.com/a/macros/kawanlamacorp.com/s/AKfycbxkN3DDLjkNWtomy4o24L75s0q0wg_XFd1nTcL_tEReu0U_3n-akzuqcuaxJJYSHEh9cg/exec"
+      url: "https://script.google.com/a/macros/kawanlamacorp.com/s/AKfycbyxP5Dom6pcsiLiPx8Kih6a1uFIrrFlm8MQjmVRAHO3g87Bi4pDvRXkfhzkxH5rF40w_g/exec",
+      openInNewTab: true
     },
     {
       name: "Dashboard Update Stock Molly",
@@ -470,16 +483,35 @@
     menus.forEach((m, i) => {
       const btn = document.createElement('button');
       btn.className = 'tab' + (i === activeIndex ? ' active' : '');
-      btn.textContent = m.name;
+      const label = document.createElement('span');
+      label.textContent = m.name;
+      btn.appendChild(label);
+      if (m.openInNewTab){
+        const icon = document.createElement('span');
+        icon.className = 'ext-icon';
+        icon.textContent = '↗';
+        icon.title = 'Membuka di tab baru';
+        btn.appendChild(icon);
+      }
       btn.onclick = () => selectTab(i);
       tabsEl.appendChild(btn);
     });
   }
 
   function selectTab(i){
+    const menu = menus[i];
+
+    // Menu yang ditandai openInNewTab langsung dibuka di tab baru dan
+    // TIDAK memuat apapun ke dalam iframe utama — tampilan dashboard
+    // (frame yang sedang aktif) tetap seperti sebelumnya.
+    if (menu.openInNewTab){
+      window.open(menu.url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
     activeIndex = i;
     renderTabs();
-    loadMenu(menus[i]);
+    loadMenu(menu);
   }
 
   function loadMenu(menu){

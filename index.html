@@ -373,6 +373,7 @@
       <span class="url" id="currentUrl">—</span>
       <div style="display:flex; align-items:center;">
         <span class="live-clock" id="liveClock">—</span>
+        <button class="fullscreen-btn" id="refreshBtn" title="Muat ulang menu ini">⟳</button>
         <button class="fullscreen-btn" id="themeToggleBtn" title="Ganti tema gelap/terang">☾</button>
         <button class="fullscreen-btn" id="fullscreenBtn" title="Perbesar layar penuh">⛶</button>
         <a class="open-new" id="openNewBtn" href="#" target="_blank" rel="noopener noreferrer">Buka di tab baru ↗</a>
@@ -429,6 +430,10 @@
     {
       name: "TEMUAN CASE INTERNAL",
       url: "https://script.google.com/a/macros/kawanlamacorp.com/s/AKfycbzaX2RtDT7hJg9mFYDgv3l3cKHPslpJvlhpgrIxHehLMmmFt4tBAv4t99sA-VKPoNWWXA/exec"
+    },
+    {
+      name: "DASHBOARD PICKING & PUTAWAY",
+      url: "https://script.google.com/a/macros/kawanlamacorp.com/s/AKfycbyu1GO80HecSAWx4Xyrf-tF_j4wsH7_6gWJULpUlKQ/dev"
     }
   ];
 
@@ -443,6 +448,7 @@
   const sidebar = document.getElementById('sidebar');
   const hideSidebarBtn = document.getElementById('hideSidebarBtn');
   const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const refreshBtn = document.getElementById('refreshBtn');
   const liveClock = document.getElementById('liveClock');
 
   function updateClock(){
@@ -550,6 +556,19 @@
       if (!loaded) fallback.classList.add('show');
     }, 4000);
   }
+
+  refreshBtn.addEventListener('click', () => {
+    const menu = menus[activeIndex];
+    if (!menu || menu.openInNewTab) return;
+
+    if (menu.type === 'image'){
+      // Cache-bust supaya gambar benar-benar dimuat ulang, bukan dari cache
+      imageEl.src = menu.url + (menu.url.includes('?') ? '&' : '?') + '_r=' + Date.now();
+      return;
+    }
+
+    loadMenu(menu);
+  });
 
   renderTabs();
   loadMenu(menus[activeIndex]);

@@ -500,17 +500,9 @@
   @media (max-width: 900px){
     .ls-illustration{ display:none; }
   }
-  .ls-glass{
+  .ls-content{
     position:relative;
     z-index:2;
-    padding: 42px 52px;
-    border-radius:26px;
-    background: rgba(255,255,255,0.045);
-    border:1px solid rgba(255,255,255,0.09);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-  }
-  .ls-content{
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -618,7 +610,6 @@
     color:#B79BD4;
   }
   @media (max-width: 480px){
-    .ls-glass{ padding:30px 26px; border-radius:20px; }
     .ls-logo{ height:38px; margin-bottom:16px; }
     .ls-footer{ bottom:14px; }
   }
@@ -656,8 +647,7 @@
         <path d="M100 30 h20" stroke-linecap="round"></path>
       </svg>
     </div>
-    <div class="ls-glass">
-      <div class="ls-content">
+    <div class="ls-content">
         <img src="LOGO_SCM.png" alt="Logo SCM" class="ls-logo">
         <h1 class="ls-title">Dashboard <span class="grad">Utama</span> — Operasional</h1>
         <p class="ls-subtitle">Monitoring • Productivity • Analisa • Optimasi</p>
@@ -670,7 +660,6 @@
           <div class="ls-progress-pct" id="loadingProgressPct">0%</div>
         </div>
       </div>
-    </div>
     <div class="ls-footer">
       <div class="ls-footer-title">Kawan Lama Distribution Center Sidoarjo</div>
       <div class="ls-footer-sub">Bring value for a better life</div>

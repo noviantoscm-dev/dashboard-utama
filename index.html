@@ -299,6 +299,28 @@
     padding:20px;
     background: var(--surface-raised);
   }
+  .notes-toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .notes-btn{
+    border:1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:12.5px;
+    padding:7px 13px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .notes-btn:hover{ color: var(--accent); border-color: var(--accent-dim); }
+  .notes-btn.danger:hover{ color: var(--danger); border-color: var(--danger); }
+  .notes-view textarea.large-text{
+    font-size:17px;
+    line-height:1.8;
+  }
   .notes-view textarea{
     flex:1;
     width:100%;
@@ -414,6 +436,12 @@
         <img id="imageEl" src="" alt="Struktur Organisasi">
       </div>
       <div class="notes-view" id="notesView">
+        <div class="notes-toolbar">
+          <button class="notes-btn" id="notesNewEntryBtn">+ Entri baru (timestamp)</button>
+          <button class="notes-btn" id="notesFontBtn">Perbesar teks</button>
+          <button class="notes-btn" id="notesDownloadBtn">Unduh .txt</button>
+          <button class="notes-btn danger" id="notesClearBtn">Bersihkan</button>
+        </div>
         <textarea id="notesArea" placeholder="Tulis catatan di sini..."></textarea>
         <div class="notes-status" id="notesStatus">Tersimpan otomatis di perangkat ini.</div>
       </div>
@@ -504,6 +532,55 @@
     clearTimeout(notesSaveTimer);
     notesStatus.textContent = 'Mengetik...';
     notesSaveTimer = setTimeout(saveNotes, 500);
+  });
+
+  const notesNewEntryBtn = document.getElementById('notesNewEntryBtn');
+  const notesFontBtn = document.getElementById('notesFontBtn');
+  const notesDownloadBtn = document.getElementById('notesDownloadBtn');
+  const notesClearBtn = document.getElementById('notesClearBtn');
+  const NOTES_FONT_KEY = 'fbi-dashboard-notes-font';
+
+  notesNewEntryBtn.addEventListener('click', () => {
+    const stamp = new Date().toLocaleString('id-ID', {
+      weekday:'short', day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+    });
+    const header = `\n\n=== ${stamp} ===\n`;
+    notesArea.value = notesArea.value.replace(/\s+$/, '') + header;
+    notesArea.focus();
+    notesArea.setSelectionRange(notesArea.value.length, notesArea.value.length);
+    saveNotes();
+  });
+
+  function applyFontPref(){
+    let large = false;
+    try{ large = localStorage.getItem(NOTES_FONT_KEY) === '1'; }catch(e){}
+    notesArea.classList.toggle('large-text', large);
+    notesFontBtn.textContent = large ? 'Perkecil teks' : 'Perbesar teks';
+  }
+  notesFontBtn.addEventListener('click', () => {
+    const isLarge = notesArea.classList.toggle('large-text');
+    notesFontBtn.textContent = isLarge ? 'Perkecil teks' : 'Perbesar teks';
+    try{ localStorage.setItem(NOTES_FONT_KEY, isLarge ? '1' : '0'); }catch(e){}
+  });
+
+  notesDownloadBtn.addEventListener('click', () => {
+    const blob = new Blob([notesArea.value], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+    a.href = url;
+    a.download = `notepad-fbi-${stamp}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  notesClearBtn.addEventListener('click', () => {
+    if (!confirm('Hapus semua isi catatan ini? Tindakan ini tidak bisa dibatalkan.')) return;
+    notesArea.value = '';
+    saveNotes();
+    notesArea.focus();
   });
   const sidebar = document.getElementById('sidebar');
   const hideSidebarBtn = document.getElementById('hideSidebarBtn');
@@ -599,6 +676,7 @@
       currentUrl.textContent = menu.name;
       openNewBtn.style.display = 'none';
       loadNotes();
+      applyFontPref();
       return;
     }
     notesView.style.display = 'none';

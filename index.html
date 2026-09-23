@@ -291,6 +291,35 @@
     display:block;
   }
 
+  .notes-view{
+    width:100%;
+    height:100%;
+    display:none;
+    flex-direction:column;
+    padding:20px;
+    background: var(--surface-raised);
+  }
+  .notes-view textarea{
+    flex:1;
+    width:100%;
+    resize:none;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background: var(--surface);
+    color: var(--text);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13.5px;
+    line-height:1.6;
+    padding:16px;
+    outline:none;
+  }
+  .notes-view textarea:focus{ border-color: var(--accent-dim); }
+  .notes-status{
+    margin-top:10px;
+    font-size:12px;
+    color: var(--text-faint);
+  }
+
   .fallback{
     position:absolute;
     inset:0;
@@ -384,6 +413,10 @@
       <div class="image-view" id="imageView" style="display:none;">
         <img id="imageEl" src="" alt="Struktur Organisasi">
       </div>
+      <div class="notes-view" id="notesView">
+        <textarea id="notesArea" placeholder="Tulis catatan di sini..."></textarea>
+        <div class="notes-status" id="notesStatus">Tersimpan otomatis di perangkat ini.</div>
+      </div>
       <div class="fallback" id="fallback">
         <strong>Menu tidak bisa ditampilkan di sini</strong>
         <p>Google Apps Script ini memblokir tampilan iframe secara default. Buka langsung di tab baru, atau lihat catatan di bawah dashboard untuk cara mengizinkannya.</p>
@@ -430,6 +463,10 @@
     {
       name: "Dashboard Picking & Putaway",
       url: "https://script.google.com/a/macros/kawanlamacorp.com/s/AKfycbzPORxmvc_ztsOF4wYOb7KENeURyyv_nqRVHKX2iTIKupLREdn56vFspe2PEoWVocBd/exec"
+    },
+    {
+      name: "Chat / Note",
+      type: "notes"
     }
   ];
 
@@ -441,6 +478,33 @@
   const fallbackOpen = document.getElementById('fallbackOpen');
   const imageView = document.getElementById('imageView');
   const imageEl = document.getElementById('imageEl');
+  const notesView = document.getElementById('notesView');
+  const notesArea = document.getElementById('notesArea');
+  const notesStatus = document.getElementById('notesStatus');
+  const NOTES_KEY = 'fbi-dashboard-notes';
+  let notesSaveTimer = null;
+
+  function loadNotes(){
+    try{
+      notesArea.value = localStorage.getItem(NOTES_KEY) || '';
+    }catch(e){
+      notesArea.value = '';
+      notesStatus.textContent = 'Penyimpanan lokal tidak tersedia di browser ini.';
+    }
+  }
+  function saveNotes(){
+    try{
+      localStorage.setItem(NOTES_KEY, notesArea.value);
+      notesStatus.textContent = 'Tersimpan • ' + new Date().toLocaleTimeString('id-ID');
+    }catch(e){
+      notesStatus.textContent = 'Gagal menyimpan (penyimpanan lokal tidak tersedia).';
+    }
+  }
+  notesArea.addEventListener('input', () => {
+    clearTimeout(notesSaveTimer);
+    notesStatus.textContent = 'Mengetik...';
+    notesSaveTimer = setTimeout(saveNotes, 500);
+  });
   const sidebar = document.getElementById('sidebar');
   const hideSidebarBtn = document.getElementById('hideSidebarBtn');
   const themeToggleBtn = document.getElementById('themeToggleBtn');
@@ -528,6 +592,18 @@
     fallback.classList.remove('show');
     clearTimeout(loadTimer);
 
+    if (menu.type === 'notes'){
+      frame.style.display = 'none';
+      imageView.style.display = 'none';
+      notesView.style.display = 'flex';
+      currentUrl.textContent = menu.name;
+      openNewBtn.style.display = 'none';
+      loadNotes();
+      return;
+    }
+    notesView.style.display = 'none';
+    openNewBtn.style.display = '';
+
     if (menu.type === 'image'){
       frame.style.display = 'none';
       imageView.style.display = 'flex';
@@ -555,7 +631,7 @@
 
   refreshBtn.addEventListener('click', () => {
     const menu = menus[activeIndex];
-    if (!menu || menu.openInNewTab) return;
+    if (!menu || menu.openInNewTab || menu.type === 'notes') return;
 
     if (menu.type === 'image'){
       // Cache-bust supaya gambar benar-benar dimuat ulang, bukan dari cache

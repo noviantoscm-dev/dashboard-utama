@@ -299,6 +299,50 @@
     padding:20px;
     background: var(--surface-raised);
   }
+  .notes-sheets{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:6px;
+    margin-bottom:10px;
+  }
+  .sheet-tab{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    border:1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:12.5px;
+    padding:6px 10px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .sheet-tab:hover{ border-color: var(--accent-dim); }
+  .sheet-tab.active{
+    color: var(--accent);
+    background: var(--accent-bg);
+    border-color: var(--accent-dim);
+    font-weight:600;
+  }
+  .sheet-tab .sheet-close{
+    opacity:0.6;
+    font-size:11px;
+    padding:0 2px;
+  }
+  .sheet-tab .sheet-close:hover{ opacity:1; color: var(--danger); }
+  .sheet-add-btn{
+    border:1px dashed var(--border);
+    background: transparent;
+    color: var(--text-faint);
+    font-size:12.5px;
+    padding:6px 12px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .sheet-add-btn:hover{ color: var(--accent); border-color: var(--accent-dim); }
+
   .notes-toolbar{
     display:flex;
     flex-wrap:wrap;
@@ -436,11 +480,12 @@
         <img id="imageEl" src="" alt="Struktur Organisasi">
       </div>
       <div class="notes-view" id="notesView">
+        <div class="notes-sheets" id="notesSheets"></div>
         <div class="notes-toolbar">
           <button class="notes-btn" id="notesNewEntryBtn">+ Entri baru (timestamp)</button>
           <button class="notes-btn" id="notesFontBtn">Perbesar teks</button>
           <button class="notes-btn" id="notesDownloadBtn">Unduh .txt</button>
-          <button class="notes-btn danger" id="notesClearBtn">Bersihkan</button>
+          <button class="notes-btn danger" id="notesClearBtn">Bersihkan lembar ini</button>
         </div>
         <textarea id="notesArea" placeholder="Tulis catatan di sini..."></textarea>
         <div class="notes-status" id="notesStatus">Tersimpan otomatis di perangkat ini.</div>
@@ -509,24 +554,124 @@
   const notesView = document.getElementById('notesView');
   const notesArea = document.getElementById('notesArea');
   const notesStatus = document.getElementById('notesStatus');
+  const notesSheetsEl = document.getElementById('notesSheets');
   const NOTES_KEY = 'fbi-dashboard-notes';
+  const SHEETS_KEY = 'fbi-dashboard-notes-sheets';
+  const ACTIVE_KEY = 'fbi-dashboard-notes-active';
   let notesSaveTimer = null;
+  let sheets = [];
+  let activeSheetId = null;
 
-  function loadNotes(){
+  function uid(){ return 's' + Date.now() + Math.random().toString(36).slice(2,7); }
+
+  function loadSheetsFromStorage(){
     try{
-      notesArea.value = localStorage.getItem(NOTES_KEY) || '';
-    }catch(e){
-      notesArea.value = '';
-      notesStatus.textContent = 'Penyimpanan lokal tidak tersedia di browser ini.';
-    }
+      const raw = localStorage.getItem(SHEETS_KEY);
+      if (raw){
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) return parsed;
+      }
+    }catch(e){}
+    // Migrasi dari catatan lama (satu lembar tunggal), kalau ada
+    let legacy = '';
+    try{ legacy = localStorage.getItem(NOTES_KEY) || ''; }catch(e){}
+    return [{ id: uid(), name: 'Lembar 1', content: legacy }];
   }
-  function saveNotes(){
+
+  function persistSheets(){
     try{
-      localStorage.setItem(NOTES_KEY, notesArea.value);
+      localStorage.setItem(SHEETS_KEY, JSON.stringify(sheets));
+      localStorage.setItem(ACTIVE_KEY, activeSheetId);
       notesStatus.textContent = 'Tersimpan • ' + new Date().toLocaleTimeString('id-ID');
     }catch(e){
       notesStatus.textContent = 'Gagal menyimpan (penyimpanan lokal tidak tersedia).';
     }
+  }
+
+  function getActiveSheet(){
+    return sheets.find(s => s.id === activeSheetId) || sheets[0];
+  }
+
+  function renderSheetTabs(){
+    notesSheetsEl.innerHTML = '';
+    sheets.forEach(s => {
+      const tab = document.createElement('div');
+      tab.className = 'sheet-tab' + (s.id === activeSheetId ? ' active' : '');
+      const label = document.createElement('span');
+      label.textContent = s.name;
+      tab.appendChild(label);
+      tab.addEventListener('click', () => switchSheet(s.id));
+      tab.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        const newName = prompt('Ganti nama lembar:', s.name);
+        if (newName && newName.trim()){
+          s.name = newName.trim();
+          persistSheets();
+          renderSheetTabs();
+        }
+      });
+      if (sheets.length > 1){
+        const close = document.createElement('span');
+        close.className = 'sheet-close';
+        close.textContent = '✕';
+        close.title = 'Hapus lembar ini';
+        close.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteSheet(s.id);
+        });
+        tab.appendChild(close);
+      }
+      notesSheetsEl.appendChild(tab);
+    });
+    const addBtn = document.createElement('button');
+    addBtn.className = 'sheet-add-btn';
+    addBtn.textContent = '+ Lembar baru';
+    addBtn.addEventListener('click', addSheet);
+    notesSheetsEl.appendChild(addBtn);
+  }
+
+  function switchSheet(id){
+    activeSheetId = id;
+    const sheet = getActiveSheet();
+    notesArea.value = sheet ? sheet.content : '';
+    renderSheetTabs();
+    persistSheets();
+  }
+
+  function addSheet(){
+    const sheet = { id: uid(), name: 'Lembar ' + (sheets.length + 1), content: '' };
+    sheets.push(sheet);
+    activeSheetId = sheet.id;
+    persistSheets();
+    renderSheetTabs();
+    notesArea.value = '';
+    notesArea.focus();
+  }
+
+  function deleteSheet(id){
+    if (sheets.length <= 1) return;
+    const sheet = sheets.find(s => s.id === id);
+    if (!confirm(`Hapus "${sheet ? sheet.name : 'lembar ini'}"? Isi lembar ini akan hilang.`)) return;
+    sheets = sheets.filter(s => s.id !== id);
+    if (activeSheetId === id) activeSheetId = sheets[0].id;
+    persistSheets();
+    renderSheetTabs();
+    notesArea.value = getActiveSheet().content;
+  }
+
+  function loadNotes(){
+    sheets = loadSheetsFromStorage();
+    let savedActive = null;
+    try{ savedActive = localStorage.getItem(ACTIVE_KEY); }catch(e){}
+    activeSheetId = (savedActive && sheets.find(s => s.id === savedActive)) ? savedActive : sheets[0].id;
+    renderSheetTabs();
+    notesArea.value = getActiveSheet().content;
+  }
+
+  function saveNotes(){
+    const sheet = getActiveSheet();
+    if (sheet) sheet.content = notesArea.value;
+    persistSheets();
   }
   notesArea.addEventListener('input', () => {
     clearTimeout(notesSaveTimer);
@@ -568,8 +713,9 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+    const sheetName = (getActiveSheet() ? getActiveSheet().name : 'notepad').replace(/[^a-z0-9]+/gi,'-');
     a.href = url;
-    a.download = `notepad-fbi-${stamp}.txt`;
+    a.download = `notepad-fbi-${sheetName}-${stamp}.txt`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -577,7 +723,7 @@
   });
 
   notesClearBtn.addEventListener('click', () => {
-    if (!confirm('Hapus semua isi catatan ini? Tindakan ini tidak bisa dibatalkan.')) return;
+    if (!confirm('Hapus isi lembar ini? Tindakan ini tidak bisa dibatalkan.')) return;
     notesArea.value = '';
     saveNotes();
     notesArea.focus();

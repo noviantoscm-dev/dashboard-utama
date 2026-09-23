@@ -441,9 +441,241 @@
     .tab{ white-space:nowrap; }
     .show-sidebar-btn{ top:10px; left:10px; }
   }
+
+  /* ===== Loading / Splash Screen ===== */
+  #loadingScreen{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    background: radial-gradient(circle at 28% 22%, #4a2a72 0%, #2B1A45 45%, #1c1130 100%);
+    opacity:1;
+    transition: opacity .5s ease;
+  }
+  #loadingScreen.hidden{
+    opacity:0;
+    pointer-events:none;
+  }
+  .ls-glow{
+    position:absolute;
+    border-radius:50%;
+    filter: blur(90px);
+    opacity:0.5;
+    animation: ls-float 11s ease-in-out infinite;
+    pointer-events:none;
+  }
+  .ls-glow.g1{ width:420px; height:420px; background:#7C2E9E; top:-110px; left:-110px; }
+  .ls-glow.g2{ width:380px; height:380px; background:#C874D9; bottom:-130px; right:-90px; animation-delay:3.5s; }
+  @keyframes ls-float{
+    0%,100%{ transform: translate(0,0) scale(1); }
+    50%{ transform: translate(26px,-18px) scale(1.08); }
+  }
+  .ls-sweep{
+    position:absolute;
+    top:-50%;
+    left:-50%;
+    width:200%;
+    height:200%;
+    background: conic-gradient(from 0deg, transparent 0deg, rgba(200,116,217,0.09) 55deg, transparent 130deg);
+    animation: ls-sweep-rotate 16s linear infinite;
+    pointer-events:none;
+  }
+  @keyframes ls-sweep-rotate{
+    from{ transform: rotate(0deg); }
+    to{ transform: rotate(360deg); }
+  }
+  .ls-illustration{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    opacity:0.13;
+    pointer-events:none;
+  }
+  .ls-illustration.left{ left:1%; }
+  .ls-illustration.right{ right:1%; }
+  .ls-illustration svg{ width:170px; height:auto; display:block; }
+  @media (max-width: 900px){
+    .ls-illustration{ display:none; }
+  }
+  .ls-glass{
+    position:relative;
+    z-index:2;
+    padding: 42px 52px;
+    border-radius:26px;
+    background: rgba(255,255,255,0.045);
+    border:1px solid rgba(255,255,255,0.09);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .ls-content{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    max-width:520px;
+    animation: ls-fade-in .8s ease both;
+  }
+  @keyframes ls-fade-in{
+    from{ opacity:0; transform:translateY(14px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .ls-logo{
+    height:50px;
+    width:auto;
+    object-fit:contain;
+    margin-bottom:22px;
+    filter: drop-shadow(0 0 18px rgba(200,116,217,0.45));
+  }
+  .ls-title{
+    margin:0 0 10px;
+    font-size:clamp(17px,3vw,28px);
+    font-weight:700;
+    letter-spacing:0.04em;
+    color:#FFFFFF;
+    text-transform:uppercase;
+    line-height:1.35;
+  }
+  .ls-title .grad{
+    background: linear-gradient(90deg,#C874D9,#F0AEEA);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .ls-subtitle{
+    margin:0 0 30px;
+    font-size:12.5px;
+    letter-spacing:0.06em;
+    color:#D9C4EE;
+  }
+  .ls-spinner{
+    width:54px;
+    height:54px;
+    border-radius:50%;
+    border:3px solid rgba(200,116,217,0.18);
+    border-top-color:#C874D9;
+    box-shadow:0 0 20px rgba(200,116,217,0.35);
+    animation: ls-spin .9s linear infinite;
+    margin-bottom:18px;
+  }
+  @keyframes ls-spin{ to{ transform: rotate(360deg); } }
+  .ls-text{
+    margin:0 0 22px;
+    font-size:12.5px;
+    color:#B79BD4;
+  }
+  .ls-progress-wrap{
+    width:min(300px,72vw);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .ls-progress-track{
+    flex:1;
+    height:8px;
+    border-radius:999px;
+    background: rgba(255,255,255,0.08);
+    border:1px solid rgba(200,116,217,0.35);
+    overflow:hidden;
+  }
+  .ls-progress-bar{
+    height:100%;
+    width:0%;
+    border-radius:999px;
+    background: linear-gradient(90deg,#7C2E9E,#C874D9);
+    transition: width .25s ease;
+    box-shadow:0 0 10px rgba(200,116,217,0.6);
+  }
+  .ls-progress-pct{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:#F1EAFB;
+    min-width:34px;
+    text-align:right;
+  }
+  .ls-footer{
+    position:absolute;
+    bottom:26px;
+    left:0;
+    right:0;
+    text-align:center;
+    z-index:2;
+  }
+  .ls-footer-title{
+    font-size:10.5px;
+    letter-spacing:0.14em;
+    color:#D9C4EE;
+    text-transform:uppercase;
+    font-weight:600;
+  }
+  .ls-footer-sub{
+    margin-top:4px;
+    font-size:11px;
+    font-style:italic;
+    font-weight:300;
+    color:#B79BD4;
+  }
+  @media (max-width: 480px){
+    .ls-glass{ padding:30px 26px; border-radius:20px; }
+    .ls-logo{ height:38px; margin-bottom:16px; }
+    .ls-footer{ bottom:14px; }
+  }
 </style>
 </head>
 <body>
+
+  <div id="loadingScreen">
+    <div class="ls-glow g1"></div>
+    <div class="ls-glow g2"></div>
+    <div class="ls-sweep"></div>
+    <div class="ls-illustration left" aria-hidden="true">
+      <svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#E8D4F7" stroke-width="2.5">
+        <rect x="20" y="20" width="160" height="220" rx="4"></rect>
+        <line x1="20" y1="80" x2="180" y2="80"></line>
+        <line x1="20" y1="140" x2="180" y2="140"></line>
+        <line x1="20" y1="200" x2="180" y2="200"></line>
+        <line x1="60" y1="20" x2="60" y2="240"></line>
+        <line x1="140" y1="20" x2="140" y2="240"></line>
+        <rect x="30" y="30" width="24" height="40" rx="2"></rect>
+        <rect x="70" y="90" width="24" height="40" rx="2"></rect>
+        <rect x="150" y="150" width="24" height="40" rx="2"></rect>
+        <rect x="90" y="210" width="24" height="24" rx="2"></rect>
+      </svg>
+    </div>
+    <div class="ls-illustration right" aria-hidden="true">
+      <svg viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#E8D4F7" stroke-width="2.5">
+        <rect x="10" y="60" width="110" height="50" rx="4"></rect>
+        <path d="M120 75 h45 l25 25 v20 h-70 z"></path>
+        <circle cx="45" cy="120" r="14"></circle>
+        <circle cx="150" cy="120" r="14"></circle>
+        <line x1="130" y1="60" x2="130" y2="10"></line>
+        <line x1="90" y1="60" x2="90" y2="10"></line>
+        <path d="M90 10 h40" stroke-linecap="round"></path>
+        <path d="M100 30 h20" stroke-linecap="round"></path>
+      </svg>
+    </div>
+    <div class="ls-glass">
+      <div class="ls-content">
+        <img src="LOGO_SCM.png" alt="Logo SCM" class="ls-logo">
+        <h1 class="ls-title">Dashboard <span class="grad">Utama</span> — Operasional</h1>
+        <p class="ls-subtitle">Monitoring • Productivity • Analisa • Optimasi</p>
+        <div class="ls-spinner" aria-hidden="true"></div>
+        <p class="ls-text">Memuat data tunggu ya...</p>
+        <div class="ls-progress-wrap">
+          <div class="ls-progress-track">
+            <div class="ls-progress-bar" id="loadingProgressBar"></div>
+          </div>
+          <div class="ls-progress-pct" id="loadingProgressPct">0%</div>
+        </div>
+      </div>
+    </div>
+    <div class="ls-footer">
+      <div class="ls-footer-title">Kawan Lama Distribution Center Sidoarjo</div>
+      <div class="ls-footer-sub">Bring value for a better life</div>
+    </div>
+  </div>
 
   <div class="sidebar" id="sidebar">
     <div class="masthead">
@@ -543,6 +775,42 @@
     }
   ];
 
+  // ===== Loading / Splash Screen control =====
+  const loadingScreen = document.getElementById('loadingScreen');
+  const loadingProgressBar = document.getElementById('loadingProgressBar');
+  const loadingProgressPct = document.getElementById('loadingProgressPct');
+  let loadingProgressTimer = null;
+  let loadingCurrentProgress = 0;
+
+  function setLoadingProgress(pct){
+    loadingCurrentProgress = pct;
+    if (loadingProgressBar) loadingProgressBar.style.width = pct + '%';
+    if (loadingProgressPct) loadingProgressPct.textContent = Math.round(pct) + '%';
+  }
+
+  function showLoadingScreen(){
+    if (!loadingScreen) return;
+    loadingScreen.style.display = 'flex';
+    loadingScreen.classList.remove('hidden');
+    setLoadingProgress(8);
+    clearInterval(loadingProgressTimer);
+    loadingProgressTimer = setInterval(() => {
+      if (loadingCurrentProgress < 90){
+        setLoadingProgress(Math.min(90, loadingCurrentProgress + Math.random() * 9 + 3));
+      }
+    }, 220);
+  }
+
+  function hideLoadingScreen(){
+    if (!loadingScreen) return;
+    clearInterval(loadingProgressTimer);
+    setLoadingProgress(100);
+    setTimeout(() => {
+      loadingScreen.classList.add('hidden');
+      setTimeout(() => { loadingScreen.style.display = 'none'; }, 550);
+    }, 180);
+  }
+
   const tabsEl = document.getElementById('tabs');
   const frame = document.getElementById('mainFrame');
   const currentUrl = document.getElementById('currentUrl');
@@ -551,6 +819,8 @@
   const fallbackOpen = document.getElementById('fallbackOpen');
   const imageView = document.getElementById('imageView');
   const imageEl = document.getElementById('imageEl');
+  imageEl.addEventListener('load', hideLoadingScreen);
+  imageEl.addEventListener('error', hideLoadingScreen);
   const notesView = document.getElementById('notesView');
   const notesArea = document.getElementById('notesArea');
   const notesStatus = document.getElementById('notesStatus');
@@ -814,6 +1084,7 @@
   function loadMenu(menu){
     fallback.classList.remove('show');
     clearTimeout(loadTimer);
+    showLoadingScreen();
 
     if (menu.type === 'notes'){
       frame.style.display = 'none';
@@ -823,6 +1094,7 @@
       openNewBtn.style.display = 'none';
       loadNotes();
       applyFontPref();
+      setTimeout(hideLoadingScreen, 350);
       return;
     }
     notesView.style.display = 'none';
@@ -847,9 +1119,12 @@
     // Apps Script yang menolak iframe biasanya gagal load tanpa error JS yang
     // bisa dideteksi (X-Frame-Options). Kita pakai timeout sederhana sebagai indikasi.
     let loaded = false;
-    frame.onload = () => { loaded = true; };
+    frame.onload = () => { loaded = true; hideLoadingScreen(); };
     loadTimer = setTimeout(() => {
-      if (!loaded) fallback.classList.add('show');
+      if (!loaded){
+        fallback.classList.add('show');
+        hideLoadingScreen();
+      }
     }, 4000);
   }
 
@@ -859,6 +1134,7 @@
 
     if (menu.type === 'image'){
       // Cache-bust supaya gambar benar-benar dimuat ulang, bukan dari cache
+      showLoadingScreen();
       imageEl.src = menu.url + (menu.url.includes('?') ? '&' : '?') + '_r=' + Date.now();
       return;
     }

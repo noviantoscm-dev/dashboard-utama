@@ -1078,7 +1078,6 @@
   function loadMenu(menu){
     fallback.classList.remove('show');
     clearTimeout(loadTimer);
-    showLoadingScreen();
 
     if (menu.type === 'notes'){
       frame.style.display = 'none';
@@ -1088,7 +1087,7 @@
       openNewBtn.style.display = 'none';
       loadNotes();
       applyFontPref();
-      setTimeout(hideLoadingScreen, 350);
+      hideLoadingScreen();
       return;
     }
     notesView.style.display = 'none';
@@ -1128,7 +1127,6 @@
 
     if (menu.type === 'image'){
       // Cache-bust supaya gambar benar-benar dimuat ulang, bukan dari cache
-      showLoadingScreen();
       imageEl.src = menu.url + (menu.url.includes('?') ? '&' : '?') + '_r=' + Date.now();
       return;
     }
@@ -1136,6 +1134,7 @@
     loadMenu(menu);
   });
 
+  showLoadingScreen();
   renderTabs();
   loadMenu(menus[activeIndex]);
 </script>
